@@ -23,7 +23,7 @@ class ServerApplicationTests {
 		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
 				"Hello, World!".getBytes());
 
-		mockMvc.perform(multipart("/api/v1/upload").file(file)).andExpect(status().isBadRequest());
+		mockMvc.perform(multipart("/api/v1/upload").file(file)).andExpect(status().isOk());
 	}
 
 }

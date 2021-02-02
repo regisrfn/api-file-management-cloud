@@ -19,6 +19,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,7 +39,7 @@ public class FileService {
 
     public FileService(FileDao fileDao, FileRepository fileRepository) {
         dotenv = Dotenv.configure().ignoreIfMissing().load();
-        
+
         requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setBufferRequestBody(false);
         requestFactory.setChunkSize(4096);
@@ -72,7 +73,11 @@ public class FileService {
 
             return fileRepository.insertFile(newFile);
 
+        } catch (HttpServerErrorException e) {
+            e.printStackTrace();
+            throw new ApiRequestException(e.getMessage(), HttpStatus.BAD_GATEWAY);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ApiRequestException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 

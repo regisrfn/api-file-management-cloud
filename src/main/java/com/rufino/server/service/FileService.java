@@ -38,8 +38,12 @@ public class FileService {
 
     public FileService(FileDao fileDao, FileRepository fileRepository) {
         dotenv = Dotenv.configure().ignoreIfMissing().load();
+        
         requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setBufferRequestBody(false);
+        requestFactory.setChunkSize(4096);
+        requestFactory.setConnectTimeout(0);
+
         this.restTemplate = new RestTemplate(requestFactory);
         this.fileDao = fileDao;
         this.fileRepository = fileRepository;

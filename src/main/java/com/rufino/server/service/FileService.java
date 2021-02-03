@@ -15,7 +15,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -31,24 +30,16 @@ public class FileService {
     private FileDao fileDao;
     private RestTemplate restTemplate;
     private FileRepository fileRepository;
-    String apiUrl;
+    private String apiUrl;
     private Dotenv dotenv;
-    private SimpleClientHttpRequestFactory requestFactory;
-
+    
     @Autowired
-
-    public FileService(FileDao fileDao, FileRepository fileRepository) {
+    public FileService(FileDao fileDao, FileRepository fileRepository, RestTemplate restTemplate) {
         dotenv = Dotenv.configure().ignoreIfMissing().load();
-
-        requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setBufferRequestBody(false);
-        requestFactory.setChunkSize(4096);
-        requestFactory.setConnectTimeout(0);
-
-        this.restTemplate = new RestTemplate(requestFactory);
+        this.apiUrl = dotenv.get("API_UPLOAD_URL");
+        this.restTemplate = restTemplate;
         this.fileDao = fileDao;
         this.fileRepository = fileRepository;
-        this.apiUrl = dotenv.get("API_UPLOAD_URL");
     }
 
     public File saveFile(MultipartFile file) {
@@ -61,14 +52,10 @@ public class FileService {
         try {
             HttpHeaders headers = new HttpHeaders();
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<String, Object>();
-
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
             body.add("file", file.getResource());
-
             HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-
             FileResponse response = restTemplate.postForObject(apiUrl, request, FileResponse.class);
-
             newFile.setFileUrl(response.getUrl());
 
             return fileRepository.insertFile(newFile);

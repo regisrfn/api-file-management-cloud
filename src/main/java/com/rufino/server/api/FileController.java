@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/file")
 public class FileController {
 
     FileService fileService;
@@ -26,12 +26,12 @@ public class FileController {
         this.fileService = fileService;
     }
 
-    @PostMapping("upload")
+    @PostMapping("save")
     public File uploadFile(@RequestParam("file") MultipartFile file) {
         return fileService.saveFile(file);
     }
 
-    @GetMapping("uploads")
+    @GetMapping
     public List<File> getAllItems() {
         return fileService.getAllFiles();
     }

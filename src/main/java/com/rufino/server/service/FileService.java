@@ -55,7 +55,7 @@ public class FileService {
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
             body.add("file", file.getResource());
             HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-            FileResponse response = restTemplate.postForObject(apiUrl, request, FileResponse.class);
+            FileResponse response = restTemplate.postForObject(apiUrl+"/upload", request, FileResponse.class);
             newFile.setFileUrl(response.getUrl());
 
             return fileRepository.insertFile(newFile);

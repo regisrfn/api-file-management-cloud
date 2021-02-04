@@ -38,6 +38,8 @@ public class File {
     @Column(columnDefinition = "timestamp with time zone")
     private ZonedDateTime fileCreatedAt;
 
+    @Column(columnDefinition = "text")
+    private String fileDescription;
     private UUID userId;
 
     public File() {
@@ -107,6 +109,14 @@ public class File {
         } catch (Exception e) {
             //TODO: handle exception
         }        
+    }
+
+    public String getFileDescription() {
+        return fileDescription;
+    }
+
+    public void setFileDescription(String fileDescription) {
+        this.fileDescription = fileDescription;
     }
 
       

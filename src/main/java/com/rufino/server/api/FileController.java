@@ -3,6 +3,7 @@ package com.rufino.server.api;
 import java.util.List;
 
 import com.rufino.server.model.File;
+import com.rufino.server.model.PageResponse;
 import com.rufino.server.service.FileService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,13 @@ public class FileController {
     @GetMapping
     public List<File> getAllItems() {
         return fileService.getAllFiles();
+    }
+
+    @GetMapping("page")
+    public PageResponse getAllOrders(@RequestParam(name = "number", defaultValue = "0") int number,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+
+        return fileService.getPage(number, size);
     }
 
 }

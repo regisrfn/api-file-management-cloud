@@ -7,6 +7,7 @@ import com.rufino.server.dao.FileDao;
 import com.rufino.server.exception.ApiRequestException;
 import com.rufino.server.model.File;
 import com.rufino.server.model.FileResponse;
+import com.rufino.server.model.PageResponse;
 import com.rufino.server.repository.FileRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,5 +90,14 @@ public class FileService {
             throw new ApiRequestException(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
+    }
+
+    public PageResponse getPage(int page,int size) {
+        try {
+            return new PageResponse(fileDao.getFilesPage(page, size));
+        } catch (Exception e) {
+            throw new ApiRequestException(e.getMessage());
+        }
+       
     }
 }

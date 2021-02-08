@@ -1,5 +1,6 @@
 package com.rufino.server.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -52,19 +53,34 @@ public class FileService {
         newFile.setFileSize(file.getSize());
 
         try {
-            HttpHeaders headers = new HttpHeaders();
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<String, Object>();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            body.add("file", file.getResource());
-            HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-            FileResponse response = restTemplate.postForObject(apiUrl + "/upload", request, FileResponse.class);
-            newFile.setFileUrl(response.getUrl());
-
+            FileResponse fileResponse = uploadFile(file);
+            newFile.setFileUrl(fileResponse.getUrl());
             return fileRepository.insertFile(newFile);
 
         } catch (HttpServerErrorException e) {
             e.printStackTrace();
             throw new ApiRequestException(e.getMessage(), HttpStatus.BAD_GATEWAY);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ApiRequestException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    public List<File> saveAllFiles(MultipartFile[] files) {
+        List<File> fList = new ArrayList<>();
+        try {
+            Arrays.asList(files).stream().forEach(file -> {
+                File newFile = new File();
+                newFile.setFileName(file.getOriginalFilename());
+                newFile.setFileContentType(file.getContentType());
+                newFile.setFileSize(file.getSize());
+                FileResponse fileResponse = uploadFile(file);
+                newFile.setFileUrl(fileResponse.getUrl());
+                fList.add(newFile);
+            });
+            return fileRepository.saveAll(fList);
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new ApiRequestException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -109,5 +125,15 @@ public class FileService {
             throw new ApiRequestException(e.getMessage());
         }
 
+    }
+
+    private FileResponse uploadFile(MultipartFile file) {
+        HttpHeaders headers = new HttpHeaders();
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<String, Object>();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        body.add("file", file.getResource());
+        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+        FileResponse response = restTemplate.postForObject(apiUrl + "/upload", request, FileResponse.class);
+        return response;
     }
 }

@@ -14,6 +14,8 @@ public interface FileDao {
 
     List<File> getAll();
 
+    List<File> saveAll(List<File> filesList);
+
     Page<File> getFilesPage(int pageNumber, int size);
 
     File getFile(UUID id);

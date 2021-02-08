@@ -45,6 +45,11 @@ public class FileRepository implements FileDao {
     }
 
     @Override
+    public List<File> saveAll(List<File> filesList) {
+        return jpaDataAccess.saveAll(filesList);
+    }
+
+    @Override
     public File getFile(UUID id) {
         return jpaDataAccess.findById(id).orElse(null);
     }

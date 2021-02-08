@@ -39,6 +39,11 @@ public class FileController {
         return fileService.saveFile(file);
     }
 
+    @PostMapping("savelist")
+    public List<File> uploadFiles(@RequestParam("files") MultipartFile[] file) {
+        return fileService.saveAllFiles(file);
+    }
+
     @GetMapping
     public List<File> getAllItems() {
         return fileService.getAllFiles();

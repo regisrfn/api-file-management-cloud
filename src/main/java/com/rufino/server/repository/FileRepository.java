@@ -35,7 +35,7 @@ public class FileRepository implements FileDao {
             jpaDataAccess.deleteById(id);
             return 1;
         } catch (Exception e) {
-            return 0;
+            throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
     }
 

@@ -1,5 +1,6 @@
 package com.rufino.server.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +34,7 @@ public class FileService {
     private FileRepository fileRepository;
     private String apiUrl;
     private Dotenv dotenv;
-    
+
     @Autowired
     public FileService(FileDao fileDao, FileRepository fileRepository, RestTemplate restTemplate) {
         dotenv = Dotenv.configure().ignoreIfMissing().load();
@@ -56,7 +57,7 @@ public class FileService {
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
             body.add("file", file.getResource());
             HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-            FileResponse response = restTemplate.postForObject(apiUrl+"/upload", request, FileResponse.class);
+            FileResponse response = restTemplate.postForObject(apiUrl + "/upload", request, FileResponse.class);
             newFile.setFileUrl(response.getUrl());
 
             return fileRepository.insertFile(newFile);
@@ -80,7 +81,16 @@ public class FileService {
     }
 
     public int deleteFileById(UUID id) {
-        return fileDao.deleteFile(id);
+        try {
+            File file = getFileById(id);
+            if (file == null)
+                throw new ApiRequestException("File not found", HttpStatus.NOT_FOUND);
+            List<String> split = Arrays.asList(file.getFileUrl().split("/"));
+            restTemplate.delete(apiUrl + "/delete/" + split.get(split.size() - 1));
+            return fileDao.deleteFile(id);
+        } catch (Exception e) {
+            throw new ApiRequestException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     public File updateFile(UUID id, File file) {
@@ -92,12 +102,12 @@ public class FileService {
 
     }
 
-    public PageResponse getPage(int page,int size) {
+    public PageResponse getPage(int page, int size) {
         try {
             return new PageResponse(fileDao.getFilesPage(page, size));
         } catch (Exception e) {
             throw new ApiRequestException(e.getMessage());
         }
-       
+
     }
 }

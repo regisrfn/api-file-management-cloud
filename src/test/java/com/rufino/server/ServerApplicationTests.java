@@ -1,6 +1,7 @@
 package com.rufino.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.rufino.server.model.File;
 import com.rufino.server.model.PageResponse;
 
+import org.hamcrest.core.Is;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -91,6 +94,20 @@ class ServerApplicationTests {
 		assertThat(pageResponse.getFilesList().size()).isEqualTo(1);
 		assertThat(pageResponse.getTotalPages()).isEqualTo(2);
 		assertThat(pageResponse.getPageNumber()).isEqualTo(1);
+	}
+
+	@Test
+	public void itShouldDeleteFile() throws Exception {
+		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
+				"Hello, World!".getBytes());
+
+		MvcResult result = mockMvc.perform(multipart("/api/v1/file/save").file(file)).andExpect(status().isOk())
+				.andReturn();
+
+		File fileResponse = objectMapper.readValue(result.getResponse().getContentAsString(), File.class);
+		result = mockMvc.perform(delete("/api/v1/file/delete/" + fileResponse.getFileId()))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.message", Is.is("successfully operation")))
+				.andExpect(status().isOk()).andExpect(status().isOk()).andReturn();
 	}
 
 }

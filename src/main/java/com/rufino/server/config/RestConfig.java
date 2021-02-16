@@ -13,8 +13,6 @@ public class RestConfig {
     public RestConfig() {
         requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setBufferRequestBody(false);
-        requestFactory.setChunkSize(4096);
-        requestFactory.setConnectTimeout(0);
     }
 
     @Bean
